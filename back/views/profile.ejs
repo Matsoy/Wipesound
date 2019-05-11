@@ -1,0 +1,193 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title>Wipesound Administration</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+	<link rel="icon" href="favicon.ico" />
+
+	<style>
+	body 		{ padding-top:80px; word-wrap:break-word; background-color: #cbade6;}
+	#map-canvas {
+		width: 100%;
+		height: 300px;
+		margin-bottom: 15px;
+		border: 2px solid #fff;
+	}
+	</style>
+</head>
+<script src="https://maps.googleapis.com/maps/api/js?sensor=false" charset="utf-8"></script>
+<script   src="https://code.jquery.com/jquery-2.2.2.js"   integrity="sha256-4/zUCqiq0kqxhZIyp4G0Gk+AOtCJsY1TA00k5ClsZYE="   crossorigin="anonymous"></script>
+<script>
+if(navigator.geolocation) {
+	var map;
+	var marker = null;
+	var myOptions;
+	var mapDiv;
+	function hasPosition(position) {
+		// Instanciation
+		document.getElementById("latitude").value = position.coords.latitude;
+		document.getElementById("longitude").value = position.coords.longitude;
+
+		var point = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+		// Ajustage des paramètres
+		myOptions = {
+			zoom: 15,
+			center: point,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+
+		// Envoi de la carte dans la div
+		mapDiv = document.getElementById("map-canvas");
+		map = new google.maps.Map(mapDiv, myOptions);
+
+		marker = new google.maps.Marker({
+			position: point,
+			map: map,
+			// Texte du point
+			title: "Vous êtes ici"
+		});
+		google.maps.event.addListener(map, "click", codeLatLngfromclick);
+	}
+	navigator.geolocation.getCurrentPosition(hasPosition);
+}
+
+function codeLatLngfromclick(event){
+	document.getElementById("latitude").value = event.latLng.lat();
+	document.getElementById("longitude").value = event.latLng.lng();
+	var latlng = event.latLng;
+	if (marker != null) marker.setMap(null);
+	marker = new google.maps.Marker({
+		position: latlng,
+		map: map
+	});
+}
+
+
+$( window ).load(function() {
+	$.get('/isConnectedSpotify', function(data,status){
+		if (data==false) {
+			//  $('<a id="connectSpotify" href="/loginSpotify" class="btn btn-default btn-sm">Connexion avec spotify</a>').insertAfter('.fa-user')
+			$('#h3').after('<a id="connectSpotify" href="/loginSpotify" class="btn btn-default btn-sm">Connexion avec spotify</a>');
+			$('#connectSpotify').after("Vous n'êtes pas connecté à Spotify");
+		}
+		else if (data == true) {
+			var datas;
+			var nameSpotify;
+			var artist = '<div id="artist"><b>Artist :</b></div>';
+			var music = '<div id="music"><b>Music :</b></div>';
+			var genres = '<div id="genres"><b>Genres :</b><div class="ct-chart"></div></div>';
+			var userspresents = '<div id="userspresents"><b>Utilisateurs présents :</b></div>';
+			var currentGenre = '<div id="currentGenre"><b>Genre top :</b></div>'
+			$.get('/getMeSpotify', function(data,status){
+				datas = JSON.stringify(data);
+				if (data.body.display_name == null) {
+					nameSpotify = '<div id="idCompte"><b>Compte Spotify: </b>'+data.body.id+"</div>";
+				}else {
+					nameSpotify = '<div id="idCompte"><b>Compte Spotify: </b>'+data.body.display_name+"</div>";
+				}
+				$('#h3').after(nameSpotify);
+				$('#idCompte').after(artist);
+				$('#artist').after(music);
+				$('#music').after(currentGenre);
+				$('#currentGenre').after(genres);
+				$('#genres').after(userspresents);
+			});
+
+
+			setInterval(function(){
+				changeMusic();
+			},30000);
+		}
+	});
+
+});
+
+function changeMusic(){
+	var audio = new Audio();
+	var artist;
+	var name;
+
+	$.get('/getMeSpotify', function(data,status){
+		$('#artist').empty();
+		$('#artist').append("<b>Artist : </b>"+data.body.track.artists[0].name);
+		$('#music').empty();
+		$('#music').append("<b>Music : </b>"+data.body.track.name);
+		$('#currentGenre').empty();
+		$('#currentGenre').append("<b>Genre top : </b>"+data.body.currentGenre);
+		$('#userspresents').empty();
+		$('#userspresents').append("<b>Utilisateurs présents :</b>"+data.body.users);
+		new Chartist.Bar('.ct-chart', {
+			labels: ["rock", "00s", "pop", "house", "jazz", "country", "club", "dance" ,"soul", "hip hop", "blues", "folk" , "punk" ,
+			"metal" ,"rap"],
+			series: [data.body.genres["rock"]+0.5, data.body.genres["00s"]+0.5, data.body.genres["pop"]+0.5,
+			data.body.genres["house"]+0.5, data.body.genres["jazz"]+0.5, data.body.genres["country"]+0.5,
+			data.body.genres["club"]+0.5, data.body.genres["dance"]+0.5, data.body.genres["soul"]+0.5,
+			data.body.genres["hip hop"]+0.5, data.body.genres["blues"]+0.5, data.body.genres["folk"]+0.5, data.body.genres["punk"]+0.5,data.body.genres["metal"]+0.5, data.body.genres["rap"]+0.5 ]
+		},
+		{ distributeSeries: true,
+			axisY :{
+				showLabel : false,
+				showGrid : false
+			},
+			axisX :{
+				showGrid : false,
+				width : '100px'
+			}
+		});
+		audio.src = data.body.track.preview_url;
+		audio.play();
+	});
+
+
+}
+
+
+
+</script>
+<body>
+	<div class="container">
+
+		<div class="page-header text-center">
+			<h1><span class="fa fa-cog"></span>WIPESOUND :  <%= user.username %></h1>
+			<a href="/logout" class="btn btn-default btn-sm">Déconnexion</a>
+		</div>
+
+		<div class="row">
+
+			<!-- LOCAL INFORMATION -->
+			<div class="col-sm-6">
+				<div class="well">
+					<h3 id="h3"><span class="fa fa-user"></span>Compte Spotify</h3>
+					<div class="">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="well">
+					<h3><span class="fa fa-map-marker"></span>Affiner votre Géolocalisation</h3>
+					<div id="map-canvas"></div>
+					<form action="/latLng" method="post">
+						<div>
+							<input type="hidden"  id="latitude" name="latitude">
+						</div>
+						<div >
+							<input type="hidden" id="longitude" name="longitude" >
+						</div>
+						<div>
+							<input type="hidden"id="user" name="user" value= <%= user.username %> >
+						</div>
+						<button type="submit" class="btn btn-warning btn-lg">Enregistrer</button>
+					</form>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+	<script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<ion-view view-title="Home" class="background animated slideInRight">
+  <ion-content>
+
+    <div class="list card">
+      <a class="item item-icon-left">
+        <i class="icon ion-android-locate animated infinite pulse"></i>
+        <button class="button button-outline button-royal">
+          <b>Votre position</br>
+          </button></br></br>
+          Latitude = <ion-spinner icon="android" ng-show="!coords.latitude"></ion-spinner>{{coords.latitude}}</br>
+          Longitude = <ion-spinner icon="android" ng-show="!coords.longitude"></ion-spinner>{{coords.longitude}}
+        </a>
+
+        <a class="item item-icon-left">
+          <i class="icon ion-beer animated wobble infinite"></i>
+          <button class="button button-outline button-royal">
+            <b>Vous êtes actuellement dans</br>
+            </button></br></br>
+            <ion-spinner icon="android" ng-show="!nomMag"></ion-spinner>{{nomMag}}
+          </a>
+
+          <a class="item item-icon-left">
+            <i class="icon ion-code-working animated wobble"></i>
+            <button class="button button-outline button-royal">
+              <b>Distance par rapport au centre</br>
+              </button></br></br>
+              <ion-spinner icon="android" ng-show="!distMag"></ion-spinner>{{distMag}} mètres
+            </a>
+
+          </ion-content>
+        </ion-view>

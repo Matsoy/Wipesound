@@ -1,0 +1,36 @@
+<ion-view view-title="Mon profil" class="animated slideInRight">
+  <ion-content>
+
+    <!-- profil -->
+    <div class="list">
+      <div class="item item-divider">
+        Photo de profil
+      </div>
+      <a class="item">
+        <img src = '{{votre_profil.images[0]}}' />
+      </a>
+      <div class="item item-divider">
+        Id Spotify
+      </div>
+      <a class="item">
+        {{votre_profil.id}}
+      </a>
+      <div class="item item-divider">
+        Email
+      </div>
+      <a class="item">
+        {{votre_profil.email}}
+      </a>
+      <div class="item item-divider">
+        Date d'anniversaire
+      </div>
+      <a class="item">
+        {{votre_profil.birthdate}}
+      </a>
+    </div></br></br>
+
+    <!-- Diagramme des genres -->
+    <nvd3 options="graphOptions" data="graphDatas"></nvd3>
+
+  </ion-content>
+</ion-view>

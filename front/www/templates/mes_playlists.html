@@ -1,0 +1,15 @@
+<ion-view view-title="Mes playlists" class="background animated slideInRight">
+  <ion-content>
+    <div class="list" ng-repeat="playlist in userPlaylists">
+      <div class="item item-divider">
+        Nom : <b>{{playlist.name}}</b>
+      </div>
+      <a class="item">
+        Id : {{playlist.id}}
+      </a>
+      <a class="item">
+        Propriétaire : {{playlist.owner.id}}
+      </a>
+    </div>
+  </ion-content>
+</ion-view>
