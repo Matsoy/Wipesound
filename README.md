@@ -3,7 +3,6 @@ A musical mobile application allowing to adapt the music according to the musica
 
 ![](front/www/img/wipesound.JPG?style=centerme "Wipesound logo")
 
-img[src$="centerme"] {
-  display:block;
-  margin: 0 auto;
-}
+<p align="center">
+  <img src="front/www/img/wipesound.JPG">
+</p>
